@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <title>bootstrap</title>
+    <style>
+        .center {
+            height: 100vh;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .shadow-lg {
+            box-shadow: 0 1rem 3rem rgba(0, 0, 0, .175) !important;
+        }
+
+        .bg-image {
+            background: url('https://img.freepik.com/free-vector/gorgeous-clouds-background-with-blue-sky-design_1017-25501.jpg') no-repeat center;
+            background-size: cover;
+            width: 100vw;
+        }
+
+        .form-control::-webkit-input-placeholder {
+            color: #343a40;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid text-center mr-auto d-flex justify-content-center center bg-image">
+        <div class="card border-0 shadow-lg bg-transparent" style="width: 36rem;">
+            <div class="card-body text-center">
+                <h5 class="card-title text-dark">Weather app</h5>
+                <input type="text" class="form-control mb-3 bg-transparent text-center border-top-0 border-left-0 border-right-0 text-dark text-uppercase" id="location" placeholder="Search by City Name" aria-label="Seacrch by City Name" aria-describedby="basic-addon1">
+                <span>
+                    <h2 class="card-subtitle mb-2 text-dark text-uppercase" id="city">City Name</h2>
+                    <h5 class="card-text text-dark mb-1" id="country"></h5>
+                </span>
+                <p class="card-text text-center text-dark"><img src="" alt="" id="icon"> <span id="temp" class="text-center text-dark h2"></span><span class="h3"><sup>&deg;</sup>C</span> </p>
+                <p class="card-text text-dark mb-1 text-capitalize font-weight-normal">Conditions: <span id="conditions"></span> </p>
+                <p class="card-text font-italic font-weight-bold text-dark">
+                <h6 class="text-dark">Wind Details:</h6> <span class="text-dark"> Degree <span id="deg" class="text-dark">
+                    </span>, Speed <span id="speed" class="text-dark"> </span>km/h, Gust <span id="gust" class="text-dark">
+                    </span>
+                </span>
+                </p>
+                <p class="card-text font-italic text-dark font-weight-bold text-dark"> Feels Like: <span id="feels">
+                    </span>
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+<script>
+    var apiKey = "10843e07344512f50a28c66bda197ed9";
+    const locations = document.querySelector('#location');
+    locations.addEventListener('keypress', setQuery);
+    function setQuery(evt) {
+        if (evt.keyCode == 13) {
+            WeatherApp.fetchWeather(locations.value);
+            // console.log(locations.value);
+        }
+    }
+    // function search(ele) {
+    //     if (event.keyCode == 13) {
+    //         ele = document.getElementById('location')
+    //         var locations = ele.value;
+    //         console.log(locations);
+    //     }
+    // }
+    // var location = fetch('https://api.openweathermap.org/data/2.5/weather?q=' + document.getElementsById("location")[0].value + '&appid=' + apiKey);
+    let WeatherApp = {
+        fetchWeather: (query) => {
+            // let ss = document.getElementById("location").value;
+            // let location = document.getElementById('location').value;
+            // let location = "bangkok";
+            // console.log(location);
+            // location
+            // fetch('https://api.openweathermap.org/data/2.5/weather?q=' + document.getElementsById("location")[0].value + '&appid=' + apiKey)
+            fetch(`https://api.openweathermap.org/data/2.5/weather?q=${query}&appid=${apiKey}&units=metric`)
+                .then((response) => response.json()).then(data => {
+                    if (typeof data.name === "undefined") {
+                        data.name = 'Temp.';
+                    }
+                    console.log(data);
+                    console.log(data.cod + "sd")
+                    if (data.cod == "404") {
+
+                        document.getElementById('city').innerHTML = "Please Enter city Name";
+                    } else {
+                        document.getElementById('city').innerText = data.name;
+                    }
+                    document.getElementById('temp').innerHTML = Math.floor(data.main.temp);
+                    document.getElementById('country').innerHTML = data.sys.country;
+                    document.getElementById('conditions').innerHTML = data.weather[0].description;
+                    document.getElementById('speed').innerHTML = data.wind.speed;
+                    document.getElementById('deg').innerHTML = data.wind.deg;
+                    document.getElementById('gust').innerHTML = data.wind.gust;
+                    document.getElementById('feels').innerHTML = Math.ceil(data.main.feels_like);
+                    let icons = "http://openweathermap.org/img/wn/";
+                    document.getElementById('icon').src = icons + data.weather[0].icon + ".png";
+                    // document.getElementById('icon').src = icons + data.weather[0].icon + "@2x.png";
+                    // console.log(data.wind.speed + " sd");
+                    // document.getElementById('temp').innerHTML = Math.floor(temp_max);
+
+                });
+        }
+
+    }
+</script>
+</html>
